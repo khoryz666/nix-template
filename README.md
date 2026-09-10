@@ -44,14 +44,30 @@ direnv allow       # trust it once; environment loads automatically from now on
 
 ## 2. Using this repo to set up a new project
 
+Pick whichever template matches the project's stack (or `default` for a
+blank slate):
+
+| Template  | `#name`   | Provides |
+|-----------|-----------|----------|
+| Generic   | `default` | empty `packages = [ ]` list |
+| Python    | `python`  | python311, pip, virtualenv (auto-creates/activates `.venv`) |
+| Conda     | `conda`   | conda binary only; conda still manages its own envs under `.conda/` |
+| Rust      | `rust`    | rustc, cargo, rustfmt, clippy, rust-analyzer |
+| Go        | `golang`  | go, gopls, golangci-lint, delve |
+| Java      | `java`    | jdk21, maven, gradle (delete whichever build tool you don't use) |
+| Node/npm  | `npm`     | nodejs_22 (bundles npm) |
+| C         | `c`       | gcc, gnumake, cmake, gdb, clangd |
+| C++       | `cpp`     | gcc/g++, gnumake, cmake, gdb, clangd |
+
 ```bash
 mkdir my-project && cd my-project
-nix flake init -t github:khoryz666/nix-templates   # copies templates/default/ here
+nix flake init -t github:khoryz666/nix-templates#python   # or #rust, #golang, #java, #npm, #c, #cpp, #conda
+# omit "#name" to get the default (generic, empty) template
 ```
 
 This drops two files into `my-project/`:
 
-- `flake.nix` — a `devShells.default` with an empty `packages = [ ... ]` list
+- `flake.nix` — a `devShells.default` with the template's `packages = [ ... ]` list
 - `.envrc` — `use flake`
 
 Then:
@@ -153,7 +169,7 @@ reproduces an identical environment on any machine, at any later date.
 
 **Per new project:**
 6. `mkdir project && cd project`
-7. `nix flake init -t github:yourname/nix-templates`
+7. `nix flake init -t github:khoryz666/nix-templates#<name>` (see the table in Section 2)
 8. Edit `packages = [ ... ]` in `flake.nix` for that project's deps
 9. `direnv allow`
 10. Launch your terminal editor from that same shell — it inherits
