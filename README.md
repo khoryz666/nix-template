@@ -212,6 +212,7 @@ reproduces an identical environment on any machine, at any later date.
    `flake.nix` + `.envrc` — **this repo**
 
 **Per new project:**
+
 6. `mkdir project && cd project`
 7. `nix flake init -t github:khoryz666/nix-templates#<name>` (see the table in Section 2)
 8. Edit `packages = [ ... ]` in `flake.nix` for that project's deps
@@ -220,11 +221,13 @@ reproduces an identical environment on any machine, at any later date.
     everything, no extra config needed
 
 **Ongoing use:**
+
 11. `cd` in → env auto-loads; `cd` out → auto-unloads
 12. Edit `flake.nix` anytime → `direnv allow` again to approve changes
 13. Commit `flake.nix` + `flake.lock` to git; gitignore `.direnv/`
 
 **Dispose / recreate:**
+
 14. Dispose: `rm -rf .direnv` (or just delete the project folder)
 15. Recreate the exact same env anywhere: copy `flake.nix` + `flake.lock`
     → `direnv allow`
@@ -232,6 +235,7 @@ reproduces an identical environment on any machine, at any later date.
 17. Global cleanup occasionally: `nix-collect-garbage -d`
 
 **Deploy:**
+
 18. `nix build` → self-contained result, or
 19. `pkgs.dockerTools.buildLayeredImage` → reproducible container, no
     Dockerfile needed
