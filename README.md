@@ -46,7 +46,7 @@ direnv allow       # trust it once; environment loads automatically from now on
 
 ```bash
 mkdir my-project && cd my-project
-nix flake init -t github:yourname/nix-templates   # copies templates/default/ here
+nix flake init -t github:khoryz666/nix-templates   # copies templates/default/ here
 ```
 
 This drops two files into `my-project/`:
