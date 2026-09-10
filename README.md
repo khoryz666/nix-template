@@ -105,10 +105,54 @@ nix-collect-garbage -d
 
 Deploying what you built:
 
+The templates above only define `devShells.default` — the environment you
+*develop in*. To deploy, your `flake.nix` also needs a `packages.default`
+output — the thing that actually gets *built*. That's a separate, per-project
+addition; there's no one-size-fits-all package output since it depends what
+your project produces. Example, using the `golang` template as a base:
+
+```nix
+# flake.nix — add alongside your existing devShells.default
+packages.default = pkgs.buildGoModule {
+  pname = "myapp";
+  version = "0.1.0";
+  src = ./.;
+  vendorHash = null;   # or the real hash once you have external Go deps
+};
+```
+
 ```bash
-nix build                                # self-contained result/ output
-# or, for a container:
-# pkgs.dockerTools.buildLayeredImage      # reproducible image, no Dockerfile
+nix build            # builds packages.default, symlinks ./result -> /nix/store/...
+./result/bin/myapp   # run the built binary directly
+```
+
+Other languages use an equivalent builder instead of `buildGoModule`:
+
+| Language | Typical builder |
+|----------|------------------|
+| Python   | `pkgs.python311Packages.buildPythonApplication` |
+| Rust     | `pkgs.rustPlatform.buildRustPackage` |
+| Java     | `pkgs.maven.buildMavenPackage` / Gradle equivalents |
+| Node/npm | `pkgs.buildNpmPackage` |
+| C/C++    | `pkgs.stdenv.mkDerivation` with your Makefile/CMake build |
+
+For a container, wrap that same package in `dockerTools.buildLayeredImage`
+(no Dockerfile needed — each Nix store path becomes its own image layer):
+
+```nix
+# flake.nix — add alongside packages.default
+packages.dockerImage = pkgs.dockerTools.buildLayeredImage {
+  name = "myapp";
+  tag = "latest";
+  contents = [ self.packages.${system}.default ];
+  config.Cmd = [ "/bin/myapp" ];
+};
+```
+
+```bash
+nix build .#dockerImage    # produces ./result, a loadable image tarball
+docker load < result       # loads it as myapp:latest
+docker run --rm myapp:latest
 ```
 
 ## 3. Pipeline: how the dependency management works
